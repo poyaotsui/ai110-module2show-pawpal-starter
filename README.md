@@ -32,6 +32,15 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Smarter Scheduling
+
+Beyond basic priority-based planning, PawPal+ includes the following algorithmic features:
+
+- **Sort by duration** — `Scheduler.sort_by_duration()` orders any task list by `duration_minutes` (ascending or descending) using a `lambda` key with Python's `sorted()`.
+- **Filter by pet or status** — `filter_by_pet(name)` returns all tasks for a specific animal; `filter_by_status(completed)` separates done tasks from pending ones.
+- **Recurring task auto-rescheduling** — When `Pet.mark_task_complete(title)` is called on a `daily` or `weekly` task, it automatically appends a new `Task` instance with a `due_date` advanced by `timedelta(days=1)` or `timedelta(weeks=1)`. Tasks with `frequency="as-needed"` are never auto-rescheduled.
+- **Conflict detection** — `Scheduler.detect_conflicts(plan)` scans every pair of scheduled entries for time-block overlaps and returns a list of warning strings rather than raising an exception, so the app can surface warnings to the user without crashing.
+
 ### Suggested workflow
 
 1. Read the scenario carefully and identify requirements and edge cases.

@@ -74,13 +74,18 @@ After reviewing the skeleton with AI feedback, one notable change was made:
 
 **a. Constraints and priorities**
 
-- What constraints does your scheduler consider (for example: time, priority, preferences)?
-- How did you decide which constraints mattered most?
+The scheduler considers two constraints:
+
+1. **Available time** — the owner's `available_minutes` acts as a hard budget. A task is only added to the plan if it fits within the remaining time.
+2. **Priority** — tasks are sorted high → medium → low before the greedy selection pass. This ensures the most critical care (medication, feeding) is never bumped by lower-priority activities like grooming.
+
+Time was treated as the hardest constraint because running out of time is a real-world limit that cannot be overridden by preference. Priority determines which tasks survive the cut when time is tight.
 
 **b. Tradeoffs**
 
-- Describe one tradeoff your scheduler makes.
-- Why is that tradeoff reasonable for this scenario?
+The scheduler checks for conflicts only on exact time-block overlaps (start < other_end AND other_start < end). It does not account for travel time between tasks or soft preferences like "don't schedule walks right after feeding."
+
+This tradeoff is reasonable for a first version because it keeps the logic simple and predictable. A pet owner reviewing the generated plan can easily spot and adjust any ordering issues manually. Adding travel-time modeling or preference scoring would make the algorithm significantly harder to debug without adding much practical value at this stage.
 
 ---
 
