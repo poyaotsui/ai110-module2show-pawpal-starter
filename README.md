@@ -41,6 +41,27 @@ Beyond basic priority-based planning, PawPal+ includes the following algorithmic
 - **Recurring task auto-rescheduling** — When `Pet.mark_task_complete(title)` is called on a `daily` or `weekly` task, it automatically appends a new `Task` instance with a `due_date` advanced by `timedelta(days=1)` or `timedelta(weeks=1)`. Tasks with `frequency="as-needed"` are never auto-rescheduled.
 - **Conflict detection** — `Scheduler.detect_conflicts(plan)` scans every pair of scheduled entries for time-block overlaps and returns a list of warning strings rather than raising an exception, so the app can surface warnings to the user without crashing.
 
+## Testing PawPal+
+
+Run the full test suite with:
+
+```bash
+python -m pytest
+```
+
+The suite contains **35 tests** across four classes and covers:
+
+| Area | What is tested |
+|---|---|
+| `Task` | `mark_complete`, `reset`, `is_high_priority`, `next_occurrence` (daily/weekly/as-needed) |
+| `Pet` | `add_task`, `remove_task`, `get_pending_tasks`, `mark_task_complete` + recurrence side-effects |
+| `Owner` | `add_pet`, `set_available_time`, `get_all_tasks` |
+| `Scheduler` | `build_plan` (priority order, time budget, completed exclusion), `sort_by_duration` (asc/desc, no mutation), `filter_by_pet`, `filter_by_status`, `detect_conflicts` |
+| Edge cases | Pet with no tasks, owner with no pets, zero available time, unknown pet name filter, back-to-back tasks (no false conflict), empty plan conflict check |
+
+**Confidence level: 4 / 5**
+Core happy paths and the most likely edge cases are covered. The main gap is integration testing between `app.py` (Streamlit session state) and the logic layer, and multi-day recurrence chains beyond a single next occurrence.
+
 ### Suggested workflow
 
 1. Read the scenario carefully and identify requirements and edge cases.
