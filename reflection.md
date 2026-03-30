@@ -2,15 +2,71 @@
 
 ## 1. System Design
 
+### Three Core User Actions
+
+1. **Add a pet** — The user enters basic information about their pet (name, species, age, breed) so the system knows who it is planning care for.
+2. **Add and manage care tasks** — The user creates tasks like "morning walk", "feeding", or "give medication", specifying how long each takes and how important it is (priority).
+3. **Generate a daily schedule** — The user triggers the scheduler, which picks and orders tasks that fit within their available time, then displays a clear plan with reasoning for each choice.
+
 **a. Initial design**
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+The system uses four classes:
+
+- **Owner**: Holds the owner's name and how many minutes they have available today. Stores preferences (e.g., prefers morning tasks).
+- **Pet**: Holds the pet's name, species, age, and breed. Linked to an Owner.
+- **Task** (dataclass): Represents a single care task — title, duration in minutes, priority level, and category (walk, feeding, meds, etc.).
+- **Scheduler**: Takes an Owner, a Pet, and a list of Tasks. Its `build_plan()` method filters and sorts tasks by priority, fits them within the owner's available time, and returns an ordered daily plan with explanations.
+
+Relationships: Owner *has* Pets; Scheduler *uses* Owner + Pet + Tasks to produce a Plan.
+
+```mermaid
+classDiagram
+    class Owner {
+        +str name
+        +int available_minutes
+        +list preferences
+        +add_pet(pet: Pet) None
+        +set_available_time(minutes: int) None
+    }
+
+    class Pet {
+        +str name
+        +str species
+        +int age
+        +str breed
+        +describe() str
+    }
+
+    class Task {
+        +str title
+        +int duration_minutes
+        +str priority
+        +str category
+        +is_high_priority() bool
+    }
+
+    class Scheduler {
+        +Owner owner
+        +Pet pet
+        +list~Task~ tasks
+        +add_task(task: Task) None
+        +remove_task(title: str) None
+        +build_plan() list~dict~
+        +explain_plan(plan: list) str
+    }
+
+    Owner "1" --> "1..*" Pet : owns
+    Scheduler --> Owner : uses
+    Scheduler --> Pet : uses
+    Scheduler "1" --> "0..*" Task : schedules
+```
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+After reviewing the skeleton with AI feedback, one notable change was made:
+
+- **Original**: `Scheduler` held a direct reference to a single `Pet` only.
+- **Change**: `Owner` now maintains a `pets` list, and `Scheduler` references the `Owner` rather than a bare `Pet`. This makes the design more realistic — an owner may have multiple pets — and keeps ownership semantics correct without adding unnecessary complexity for the current scope.
 
 ---
 
